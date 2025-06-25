@@ -1,13 +1,10 @@
+// This file is part of the "AI Text Analysis" project.
+// It is a serverless function that handles text analysis using Azure's Text Analysis API.
 import { TextAnalysisClient, AzureKeyCredential } from "@azure/ai-language-text";
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import dotenv from 'dotenv';
 dotenv.config();
-import express from 'express';
-import cors from 'cors';
-const app = express();
-app.use(cors);
-app.use(express.json());
-const port = process.env.PORT || 3050;
+
 
 // ---- AZURE CONFIGURATION ---
 const azureEndpoint = process.env.AZURE_LANGUAGE_ENDPOINT as string;
