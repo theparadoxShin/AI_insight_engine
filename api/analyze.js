@@ -20,22 +20,22 @@ const documents = [
 ];
 
 // --- MAIN FUNCTION TO HANDLE 3 APIs CALL ---
-async function main(request, response) {
+async function main() {
   console.log("=== Analyze Sentiment Sample ===");
 
   try{
 
-    const {document} = request.body;
-    if(!document || typeof document != 'string' || document.trim().length === 0){
-        return response.status(400).json({error : "please insert a text or upload a document"})
+    //const {document} = request.body;
+    if(!documents || typeof documents != 'string' || documents.trim().length === 0){
+        //return response.status(400).json({error : "please insert a text or upload a document"})
     }
 
-    const azureResult = await getAzureAnalyze(document);
+    const azureResult = await getAzureAnalyze(documents);
     console.log(azureResult);
 
   }catch(err){
     console.error("Error in main function : " , err);
-    return response.status(500).json({error: "Error in main function : ", details: err.message})
+    //return response.status(500).json({error: "Error in main function : ", details: err.message})
   }
 
 }
@@ -56,7 +56,7 @@ async function getAzureAnalyze(texts) {
 
     try{
 
-        const results = await client.analyze("SentimentAnalysis", texts);
+        const results = await azureClient.analyze("SentimentAnalysis", texts);
         if(results.error){
             throw new Error(results.error.message)
         }
