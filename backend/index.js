@@ -1,5 +1,12 @@
-const { TextAnalysisClient, AzureKeyCredential } = require("@azure/ai-language-text");
-require("dotenv/config");
+import { TextAnalysisClient, AzureKeyCredential } from "@azure/ai-language-text";
+import dotenv from 'dotenv';
+dotenv.config();
+import express from 'express';
+import cors from 'cors';
+const app = express();
+app.use(cors);
+app.use(express.json());
+const port = process.env.PORT || 8000;
 
 // ---- AZURE CONFIGURATION ---
 const azureEndpoint = process.env["AZURE_LANGUAGE_ENDPOINT"];
@@ -20,7 +27,7 @@ const documents = [
 ];
 
 // --- MAIN FUNCTION TO HANDLE 3 APIs CALL ---
-async function main() {
+app.post('/api/analyze', async (request, response) => {
   console.log("=== Analyze Sentiment Sample ===");
 
   try{
@@ -38,13 +45,7 @@ async function main() {
     //return response.status(500).json({error: "Error in main function : ", details: err.message})
   }
 
-}
-
-main().catch((err) => {
-  console.error("The sample encountered an error:", err);
 });
-
-module.exports = { main };
 
 /*
  *********************************
@@ -68,3 +69,5 @@ async function getAzureAnalyze(texts) {
     }
 
 }
+
+export default app;
