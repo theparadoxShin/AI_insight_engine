@@ -6,7 +6,7 @@ import cors from 'cors';
 const app = express();
 app.use(cors);
 app.use(express.json());
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 3050;
 
 // ---- AZURE CONFIGURATION ---
 const azureEndpoint = process.env["AZURE_LANGUAGE_ENDPOINT"];
@@ -27,7 +27,7 @@ const documents = [
 ];
 
 app.get('/', (req, res) => {
-        res.send('Hello from Express API!');
+        res.send('Hello from AI Insight API !');
     });
 
 // --- MAIN FUNCTION TO HANDLE 3 APIs CALL ---
