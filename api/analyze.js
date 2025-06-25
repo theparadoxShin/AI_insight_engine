@@ -20,7 +20,7 @@ const documents = [
 ];
 
 // --- MAIN FUNCTION TO HANDLE 3 APIs CALL ---
-async function main(request, response) {
+export default async function main(request, response) {
   console.log("=== Analyze Sentiment Sample ===");
 
   try{
@@ -67,5 +67,3 @@ async function getAzureAnalyze(texts) {
     }
 
 }
-
-module.exports = { main };
