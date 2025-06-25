@@ -7,8 +7,8 @@ dotenv.config();
 
 
 // ---- AZURE CONFIGURATION ---
-const azureEndpoint = process.env.AZURE_LANGUAGE_ENDPOINT as string;
-const azureApiKey = process.env.AZURE_LANGUAGE_CREDIANTIAL_KEY as string;
+const azureEndpoint = process.env['AZURE_LANGUAGE_ENDPOINT'] as string;
+const azureApiKey = process.env['AZURE_LANGUAGE_CREDIANTIAL_KEY'] as string;
 const azureCredential = new AzureKeyCredential(azureApiKey);
 const azureClient = new TextAnalysisClient(azureEndpoint, azureCredential);
 
