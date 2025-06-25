@@ -26,6 +26,10 @@ const documents = [
   "This was a waste of my time. The speaker put me to sleep.",
 ];
 
+app.get('/', (req, res) => {
+        res.send('Hello from Express API!');
+    });
+
 // --- MAIN FUNCTION TO HANDLE 3 APIs CALL ---
 app.post('/api/analyze', async (request, response) => {
   console.log("=== Analyze Sentiment Sample ===");
@@ -69,5 +73,6 @@ async function getAzureAnalyze(texts) {
     }
 
 }
-
-export default app;
+app.listen(port, ()=>{
+  console.log("your server is running");
+})
