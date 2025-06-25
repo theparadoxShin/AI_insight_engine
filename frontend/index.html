@@ -211,18 +211,16 @@
         </div>
 
         <script>
-            
+
             const analyzeButton = document.getElementById('analyze-button');
             const textInput = document.getElementById('text-input');
             const loader = document.getElementById('loader');
             const errorMessage = document.getElementById('error-message');
-            
-            const awsOutput = document.getElementById('aws-output');
-            const azureOutput = document.getElementById('azure-output');
-            const googleOutput = document.getElementById('google-output');
 
-            const BACKEND_URL = '/backend/analyze'; // Insert your backend url nodejs API serverless function
-            
+            const azureOutput = document.getElementById('azure-output');
+
+            const BACKEND_URL = '/backend/analyze';
+
             analyzeButton.addEventListener('click', async () => {
                 const text = textInput.value;
                 if (!text.trim()) {
@@ -234,12 +232,10 @@
                 errorMessage.textContent = '';
                 loader.style.display = 'inline-block';
                 analyzeButton.disabled = true;
-                analyzeButton.querySelector('span').textContent = 'Analyse en cours...';
+                analyzeButton.querySelector('span').textContent = 'Analyze in progress...';
                 
                 // --- Clear previous results ---
-                awsOutput.innerHTML = '';
                 azureOutput.innerHTML = '';
-                googleOutput.innerHTML = '';
 
                 try {
                     const response = await fetch(BACKEND_URL, {
@@ -252,7 +248,7 @@
 
                     if (!response.ok) {
                         const errorData = await response.json();
-                        throw new Error(errorData.error || `Error HTTP: ${response.status}`);
+                        throw new Error(errorData.error || `Error : ${response.status}`);
                     }
 
                     const data = await response.json();
@@ -270,46 +266,17 @@
             });
 
             function displayResults(data) {
-                displaySingleResult(awsOutput, data.aws);
                 displaySingleResult(azureOutput, data.azure);
-                displaySingleResult(googleOutput, data.google);
             }
             
             function displaySingleResult(container, result) {
                 if (result.error) {
+                    console.error(result.error);
                     container.innerHTML = `<p style="color: #ff5555;">${result.error}</p>`;
                     return;
                 }
+                console.log(result);
                 
-                let html = `
-                    <div class="result-item">
-                        <h3>Sentiments</h3>
-                        <p>${result.sentiment || 'N/A'}</p>
-                    </div>
-                `;
-                
-                // Format scores nicely
-                let scoresHtml = '<pre>';
-                if(result.scores) {
-                    for(const [key, value] of Object.entries(result.scores)) {
-                        scoresHtml += `${key}: ${parseFloat(value).toFixed(3)}\n`;
-                    }
-                } else if (result.score !== undefined) {
-                    scoresHtml += `Score: ${parseFloat(result.score).toFixed(3)}\n`;
-                    scoresHtml += `Magnitude: ${parseFloat(result.magnitude).toFixed(3)}`;
-                } else {
-                    scoresHtml += 'Non disponible';
-                }
-                scoresHtml += '</pre>';
-
-                html += `
-                    <div class="result-item">
-                        <h3>Trusted score</h3>
-                        ${scoresHtml}
-                    </div>
-                `;
-                
-                container.innerHTML = html;
             }
 
         </script>

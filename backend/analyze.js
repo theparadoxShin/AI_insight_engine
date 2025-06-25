@@ -1,43 +1,71 @@
 const { TextAnalysisClient, AzureKeyCredential } = require("@azure/ai-language-text");
+require("dotenv/config");
 
-const endpoint = process.env["AZURE_LANGUAGE_ENDPOINT"];
-const api_key = process.env["AZURE_LANGUAGE_CREDIANTIAL_KEY"];
+// ---- AZURE CONFIGURATION ---
+const azureEndpoint = process.env["AZURE_LANGUAGE_ENDPOINT"];
+const azureApiKey = process.env["AZURE_LANGUAGE_CREDIANTIAL_KEY"];
+const azureCredential = new AzureKeyCredential(azureApiKey);
+const azureClient = new TextAnalysisClient(azureEndpoint, azureCredential);
 
+// --- AWS CONFIGURATION
+
+
+// --- GOOGLE CONFIGURATION
+
+
+// --- DOCUMENTS TESTS ---
 const documents = [
   "I had the best day of my life.",
   "This was a waste of my time. The speaker put me to sleep.",
 ];
 
-async function main() {
+// --- MAIN FUNCTION TO HANDLE 3 APIs CALL ---
+async function main(request, response) {
   console.log("=== Analyze Sentiment Sample ===");
 
-  const credential = new AzureKeyCredential(api_key);
+  try{
 
-  const client = new TextAnalysisClient(endpoint, new DefaultAzureCredential());
-
-  const results = await client.analyze("SentimentAnalysis", documents);
-
-  for (let i = 0; i < results.length; i++) {
-    const result = results[i];
-    console.log(`- Document ${result.id}`);
-    if (!result.error) {
-      console.log(`\tDocument text: ${documents[i]}`);
-      console.log(`\tOverall Sentiment: ${result.sentiment}`);
-      console.log("\tSentiment confidence scores: ", result.confidenceScores);
-      console.log("\tSentences");
-      for (const { sentiment, confidenceScores, text } of result.sentences) {
-        console.log(`\t- Sentence text: ${text}`);
-        console.log(`\t  Sentence sentiment: ${sentiment}`);
-        console.log("\t  Confidence scores:", confidenceScores);
-      }
-    } else {
-      console.error(`  Error: ${result.error}`);
+    const {document} = request.body;
+    if(!document || typeof document != 'string' || document.trim().length === 0){
+        return response.status(400).json({error : "please insert a text or upload a document"})
     }
+
+    const azureResult = await getAzureAnalyze(document);
+    console.log(azureResult);
+
+  }catch(err){
+    console.error("Error in main function : " , err);
+    return response.status(500).json({error: "Error in main function : ", details: err.message})
   }
+
 }
 
 main().catch((err) => {
   console.error("The sample encountered an error:", err);
 });
+
+
+/*
+ *********************************
+ *Block of Functions for each APIs
+ *********************************
+*/
+
+async function getAzureAnalyze(texts) {
+
+    try{
+
+        const results = await client.analyze("SentimentAnalysis", texts);
+        if(results.error){
+            throw new Error(results.error.message)
+        }
+        return results;
+
+    }catch (err){
+        console.error("Azure Error :", err);
+        return {err : "Failed to get anamysis from Azure"};
+    }
+
+}
 
 module.exports = { main };
