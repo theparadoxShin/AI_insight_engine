@@ -4,11 +4,11 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node server",
+    "start": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "Parfait Tedom Tedom",
   "license": "ISC",
   "description": "",
   "dependencies": {
@@ -18,6 +18,7 @@
     "@types/cors": "^2.8.19",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "nodemon": "^3.1.10"
   }
 }
