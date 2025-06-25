@@ -20,7 +20,7 @@ const documents = [
 ];
 
 // --- MAIN FUNCTION TO HANDLE 3 APIs CALL ---
-export default async function main(request, response) {
+async function main(request, response) {
   console.log("=== Analyze Sentiment Sample ===");
 
   try{
@@ -44,6 +44,7 @@ main().catch((err) => {
   console.error("The sample encountered an error:", err);
 });
 
+module.exports = { main };
 
 /*
  *********************************
