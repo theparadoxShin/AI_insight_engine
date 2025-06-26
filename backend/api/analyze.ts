@@ -65,11 +65,11 @@ export default async function handler(
 }
 
 /*
- *********************************
+ **********************************************************************
  *Block of Functions for each APIs
  * This is where you can add functions for Azure, AWS and Google APIs
  * to get sentiment analysis.
- *********************************
+ **********************************************************************
 */
 
 // Function to get sentiment analysis, language from Azure
