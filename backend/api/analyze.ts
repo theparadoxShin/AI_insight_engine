@@ -39,7 +39,7 @@ export default async function handler(
 
     try {
         // Extract the document (text) of the request
-        const { text } = req.body;
+        const text = req.body;
         if (!text || typeof text !== 'string') {
             return res.status(400).json({ error: 'Please enter a text or upload a document', details: 'Text must be a non-empty string.', text: req.body, type: typeof text });
         }
