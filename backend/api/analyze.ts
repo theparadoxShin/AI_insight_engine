@@ -38,7 +38,7 @@ export default async function handler(
         // Extract the document (text) of the request
         const { text } = req.body;
         if (!text || typeof text !== 'string' || text.trim().length === 0) {
-            return res.status(400).json({ error: 'Please enter a text or upload a document' });
+            return res.status(400).json({ error: 'Please enter a text or upload a document', details: 'Text must be a non-empty string.', text: text });
         }
 
         // --- On exécute les appels API en parallèle, comme avant ---
