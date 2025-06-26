@@ -5,7 +5,6 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import dotenv from 'dotenv';
 import { LanguageServiceClient } from "@google-cloud/language";
 import { ComprehendClient, DetectSentimentCommand,DetectDominantLanguageCommand } from "@aws-sdk/client-comprehend";
-import { get } from "http";
 
 dotenv.config();
 
@@ -40,6 +39,13 @@ export default async function handler(
     req: VercelRequest,
     res: VercelResponse
 ) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With, X-CSRF-Token');
+    if (req.method === 'OPTIONS') {
+        res.status(200).end();
+        return;
+    }
     // Verifiy that the request is POST
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method Not Allowed' });
@@ -47,7 +53,7 @@ export default async function handler(
 
     try {
         // Extract the document (text) of the request
-        const text = req.body;
+        const text = req.body.text;
         if (!text || typeof text !== 'string') {
             return res.status(400).json({ error: 'Please enter a text or upload a document', details: 'Text must be a non-empty string.', text: req.body, type: typeof text });
         }
