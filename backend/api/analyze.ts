@@ -4,6 +4,8 @@ import { TextAnalysisClient, AzureKeyCredential } from "@azure/ai-language-text"
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import dotenv from 'dotenv';
 import { LanguageServiceClient } from "@google-cloud/language";
+import { ComprehendClient, DetectSentimentCommand,DetectDominantLanguageCommand } from "@aws-sdk/client-comprehend";
+import { get } from "http";
 
 dotenv.config();
 
@@ -15,7 +17,13 @@ const azureCredential = new AzureKeyCredential(azureApiKey);
 const azureClient = new TextAnalysisClient(azureEndpoint, azureCredential);
 
 // --- AWS CONFIGURATION
-
+const awsClient = new ComprehendClient({
+    region: process.env.AWS_REGION as string,
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
+    },
+});
 
 // --- GOOGLE CONFIGURATION
 const apiKey = process.env['GOOGLE_API_KEY'] as string;
@@ -46,15 +54,17 @@ export default async function handler(
         const documents = [text];
 
         // --- On exécute les appels API en parallèle, comme avant ---
-        const [azureResult, googleResult] = await Promise.all([
+        const [azureResult, googleResult, awsResult] = await Promise.all([
             getAzureAnalyze(documents),
             getGoogleAnalyze(documents),
+            getAWSAnalyze(documents)
         ]);
         
         // --- On retourne le résultat combiné ---
         return res.status(200).json({
             azure: azureResult,
             google: googleResult,
+            aws: awsResult,
             message: 'Sentiment analysis completed successfully.',
         });
 
@@ -93,9 +103,9 @@ async function getAzureAnalyze(texts: any) {
 
         // Extract the sentiment and confidence scores
         return {
-            sentiment: result_sentiment.sentiment,
-            scores: result_sentiment.confidenceScores,
-            languages: result_language,
+            sentiment: result_sentiment.sentiment as any,
+            scores: result_sentiment.confidenceScores as any,
+            languages: result_language as any,
         };
 
     }catch (err){
@@ -125,7 +135,7 @@ async function getGoogleAnalyze(texts: any) {
         console.log('Sentiment:', sentiment);
         
         return {
-            sentiment: sentiment,
+            sentiment: sentiment as any, // Cast to 'any' for compatibility
         };
 
     } catch (error) {
@@ -133,4 +143,30 @@ async function getGoogleAnalyze(texts: any) {
         return { err: "Failed to get analysis from Google" };
     }
 
+}
+
+// Function to get sentiment analysis from AWS Comprehend
+async function getAWSAnalyze(texts: any) {
+    try {
+        // Create a command to detect sentiment
+        const command = new DetectSentimentCommand({
+            Text: texts[0], // AWS Comprehend expects a single text input
+            LanguageCode: 'en', // Specify the language code
+        });
+
+        // Send the command to AWS Comprehend
+        const response = await awsClient.send(command);
+
+        // Log the response for debugging
+        console.log('AWS Sentiment:', response);
+
+        return {
+            sentiment: response.Sentiment as any, // Cast to 'any' for compatibility
+            scores: response.SentimentScore as any,
+        };
+
+    } catch (error) {
+        console.error("AWS Error:", error);
+        return { err: "Failed to get analysis from AWS" };
+    }
 }

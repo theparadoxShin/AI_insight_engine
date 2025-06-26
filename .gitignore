@@ -3,3 +3,5 @@ backend/node_modules/
 backend/.env
 .vercel
 backend/vercel.json
+
+.vercel

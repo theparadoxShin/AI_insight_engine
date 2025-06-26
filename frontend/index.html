@@ -219,7 +219,7 @@
 
             const azureOutput = document.getElementById('azure-output');
 
-            const BACKEND_URL = '/api/index';
+            const BACKEND_URL = 'https://ai-insight-engine-deyb.vercel.app/api/analyze'; // Adjust this URL based on your backend setup
 
             analyzeButton.addEventListener('click', async () => {
                 const text = textInput.value;
@@ -245,6 +245,8 @@
                         },
                         body: JSON.stringify({ text }),
                     });
+
+                    console.log('Response :', response);
 
                     if (!response.ok) {
                         const errorData = await response.json();
@@ -276,6 +278,19 @@
                     return;
                 }
                 console.log(result);
+                let content = '';
+                if (result.sentiment) {
+                    content += `<div class="result-item">
+                                    <h3>Sentiment</h3>
+                                    <p>${result.sentiment}</p>
+                                </div>`;
+                }
+                if (result.language) {
+                    content += `<div class="result-item">
+                                    <h3>Language</h3>
+                                    <p>${result.language}</p>
+                                </div>`;
+                }
                 
             }
 
