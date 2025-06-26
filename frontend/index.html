@@ -157,6 +157,19 @@
             font-size: 0.9rem;
         }
 
+        .sentiment-display {
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        .emoji {
+            font-size: 1.5rem;
+            margin-right: 0.75rem;
+            vertical-align: middle;
+        }
+
         .loader {
             width: 18px;
             height: 18px;
@@ -211,75 +224,156 @@
         </div>
 
         <script>
+        const analyzeButton = document.getElementById('analyze-button');
+        const textInput = document.getElementById('text-input');
+        const loader = document.getElementById('loader');
+        const errorMessage = document.getElementById('error-message');
+        
+        const awsOutput = document.getElementById('aws-output');
+        const azureOutput = document.getElementById('azure-output');
+        const googleOutput = document.getElementById('google-output');
 
-            const analyzeButton = document.getElementById('analyze-button');
-            const textInput = document.getElementById('text-input');
-            const loader = document.getElementById('loader');
-            const errorMessage = document.getElementById('error-message');
-
-            const azureOutput = document.getElementById('azure-output');
-
-            const BACKEND_URL = '/api/index';
-
-            analyzeButton.addEventListener('click', async () => {
-                const text = textInput.value;
-                if (!text.trim()) {
-                    errorMessage.textContent = 'Please enter a text.';
-                    return;
-                }
-
-                // --- UI changes for loading state ---
-                errorMessage.textContent = '';
-                loader.style.display = 'inline-block';
-                analyzeButton.disabled = true;
-                analyzeButton.querySelector('span').textContent = 'Analyze in progress...';
-                
-                // --- Clear previous results ---
-                azureOutput.innerHTML = '';
-
-                try {
-                    const response = await fetch(BACKEND_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ text }),
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error || `Error : ${response.status}`);
-                    }
-
-                    const data = await response.json();
-                    displayResults(data);
-
-                } catch (error) {
-                    console.error('Fetch error:', error);
-                    errorMessage.textContent = `Qn Error occur : ${error.message}`;
-                } finally {
-                    // --- Reset UI after completion or error ---
-                    loader.style.display = 'none';
-                    analyzeButton.disabled = false;
-                    analyzeButton.querySelector('span').textContent = 'Analyser le texte';
-                }
-            });
-
-            function displayResults(data) {
-                displaySingleResult(azureOutput, data.azure);
+        const BACKEND_URL = 'http://localhost:3000/api/analyze'; // The backend URL serverless function
+        
+        analyzeButton.addEventListener('click', async () => {
+            const text = textInput.value;
+            if (!text.trim()) {
+                errorMessage.textContent = 'Veuillez entrer du texte.';
+                return;
             }
+
+            errorMessage.textContent = '';
+            loader.style.display = 'inline-block';
+            analyzeButton.disabled = true;
+            analyzeButton.querySelector('span').textContent = 'Analyse en cours...';
             
-            function displaySingleResult(container, result) {
-                if (result.error) {
-                    console.error(result.error);
-                    container.innerHTML = `<p style="color: #ff5555;">${result.error}</p>`;
-                    return;
+            awsOutput.innerHTML = '';
+            azureOutput.innerHTML = '';
+            googleOutput.innerHTML = '';
+
+            try {
+                const response = await fetch(BACKEND_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `Erreur HTTP: ${response.status}`);
                 }
-                console.log(result);
-                
+
+                const data = await response.json();
+                displayResults(data);
+
+            } catch (error) {
+                console.error('Fetch error:', error);
+                errorMessage.textContent = `Une erreur est survenue : ${error.message}`;
+            } finally {
+                loader.style.display = 'none';
+                analyzeButton.disabled = false;
+                analyzeButton.querySelector('span').textContent = 'Analyser le texte';
+            }
+        });
+
+        // --- RENDER FUNCTIONS ---
+
+        function getSentimentEmoji(sentiment) {
+            if (!sentiment) return '❓';
+            const sentimentLower = sentiment.toLowerCase();
+            switch (sentimentLower) {
+                case 'positive': return '😊';
+                case 'negative': return '😠';
+                case 'neutral': return '😐';
+                case 'mixed': return '🤔';
+                default: return '❓';
+            }
+        }
+
+        function displayResults(data) {
+            displayAwsResult(awsOutput, data.aws);
+            displayAzureResult(azureOutput, data.azure);
+            displayGoogleResult(googleOutput, data.google);
+        }
+        
+        function formatScores(scoresObject) {
+            if (!scoresObject || Object.keys(scoresObject).length === 0) {
+                return '<pre>Non disponible</pre>';
+            }
+            let scoresHtml = '<pre>';
+            for (const [key, value] of Object.entries(scoresObject)) {
+                const formattedKey = key.charAt(0).toUpperCase() + key.slice(1).toLowerCase();
+                scoresHtml += `${formattedKey.padEnd(10, ' ')}: ${parseFloat(value).toFixed(3)}\n`;
+            }
+            scoresHtml += '</pre>';
+            return scoresHtml;
+        }
+        
+        function displayAwsResult(container, result) {
+            if (result.error) {
+                container.innerHTML = `<p style="color: #ff5555;">${result.error}</p>`;
+                return;
+            }
+            const sentiment = result.sentiment || 'N/A';
+            const emoji = getSentimentEmoji(sentiment);
+            container.innerHTML = `
+                <div class="result-item">
+                    <h3>Sentiment</h3>
+                    <p class="sentiment-display"><span class="emoji">${emoji}</span> ${sentiment}</p>
+                </div>
+                <div class="result-item">
+                    <h3>Détail des Scores</h3>
+                    ${formatScores(result.scores)}
+                </div>
+            `;
+        }
+
+        function displayAzureResult(container, result) {
+            if (result.error) {
+                container.innerHTML = `<p style="color: #ff5555;">${result.error}</p>`;
+                return;
+            }
+            const sentiment = result.sentiment || 'N/A';
+            const emoji = getSentimentEmoji(sentiment);
+            container.innerHTML = `
+                <div class="result-item">
+                    <h3>Sentiment</h3>
+                    <p class="sentiment-display"><span class="emoji">${emoji}</span> ${sentiment}</p>
+                </div>
+                <div class="result-item">
+                    <h3>Détail des Scores</h3>
+                    ${formatScores(result.scores)}
+                </div>
+            `;
+        }
+        
+        function displayGoogleResult(container, result) {
+             if (result.error) {
+                container.innerHTML = `<p style="color: #ff5555;">${result.error}</p>`;
+                return;
             }
 
-        </script>
+            // There's no sentiment in Google result, so we handle it differently by deducting sentiment from the score
+            const score = result.sentiment ? result.sentiment.score : 0;
+            let sentiment = 'NEUTRAL';
+            if (score > 0.25) sentiment = 'POSITIVE';
+            if (score < -0.25) sentiment = 'NEGATIVE';
+            
+            const emoji = getSentimentEmoji(sentiment);
+
+            container.innerHTML = `
+                <div class="result-item">
+                    <h3>Sentiment</h3>
+                    <p class="sentiment-display"><span class="emoji">${emoji}</span> ${sentiment}</p>
+                </div>
+                <div class="result-item">
+                    <h3>Détail des Scores</h3>
+                    ${formatScores(result.sentiment)}
+                </div>
+            `;
+        }
+
+    </script>
 
     </body>
 </html>
