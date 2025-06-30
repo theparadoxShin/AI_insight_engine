@@ -6,7 +6,7 @@
         <title>AI Insight Engine</title>
         <meta name="description" content="AI Insight Engine frontend ,
         analyze the input text and use the AWS, Google and Azure AI API to 
-        extract sentiment, language, keys phrases" >
+        extract sentiment with scores, language, keys phrases... (in progress)" >
         <meta name="author" content="Parfait Tedom Tedom" >
 
         <style>
@@ -201,7 +201,7 @@
                 <textarea id="text-input" placeholder="Enter the text you want to analyze..."></textarea>
                 <button id="analyze-button">
                     <div class="loader" id="loader"></div>
-                    <span>Analyze the text</span>
+                    <span>Analyze</span>
                 </button>
             </div>
             
@@ -245,8 +245,8 @@
             errorMessage.textContent = '';
             loader.style.display = 'inline-block';
             analyzeButton.disabled = true;
-            analyzeButton.querySelector('span').textContent = 'Analyse en cours...';
-            
+            analyzeButton.querySelector('span').textContent = 'Analyze in progress...';
+            // Clear previous results
             awsOutput.innerHTML = '';
             azureOutput.innerHTML = '';
             googleOutput.innerHTML = '';
@@ -272,7 +272,7 @@
             } finally {
                 loader.style.display = 'none';
                 analyzeButton.disabled = false;
-                analyzeButton.querySelector('span').textContent = 'Analyser le texte';
+                analyzeButton.querySelector('span').textContent = 'Analyze';
             }
         });
 
