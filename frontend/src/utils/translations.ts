@@ -7,8 +7,8 @@ export const translations: Translation = {
     en: "AI Insight Engine"
   },
   appDescription: {
-    fr: "Comparez l'analyse de texte IA entre AWS, Azure et Google Cloud. Testez l'analyse de sentiment, la reconnaissance d'entités et plus avec des résultats en temps réel.",
-    en: "Compare AI text analysis across AWS, Azure, and Google Cloud. Test sentiment analysis, entity recognition, and more with real-time results."
+    fr: "Comparez tous les services IA entre AWS, Azure et Google Cloud. Testez le NLP, l'analyse de documents, la vision par ordinateur et plus encore avec des résultats en temps réel.",
+    en: "Compare all AI services across AWS, Azure, and Google Cloud. Test NLP, document analysis, computer vision, and more with real-time results."
   },
   createdBy: {
     fr: "Créé par",

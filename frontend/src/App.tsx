@@ -191,7 +191,7 @@ function App() {
         if (Date.now() > prev.resetTime) {
           console.log('🔄 Resetting rate limits');
           return {
-            remainingRequests: 50,
+            remainingRequests: 10,
             resetTime: Date.now() + 3600000, // 1 hour
             isLimited: false
           };
@@ -230,7 +230,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="mx-auto px-4 py-8" style={{ maxWidth: '89rem' }}>
         {/* Header with title, description and links */}
         <Header language={language} onLanguageChange={setLanguage} />
         

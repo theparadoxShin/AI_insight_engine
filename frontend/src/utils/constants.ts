@@ -159,21 +159,27 @@ export const PROVIDERS = {
     fullName: 'Amazon Web Services',
     color: '#FF9900',
     bgColor: 'bg-orange-500',
-    borderColor: 'border-t-[#FF9900]'
+    bgColorTransparent: 'bg-orange-500/20',
+    borderColor: 'border-t-[#FF9900]',
+    borderColorTransparent: 'border-orange-500/30'
   },
   azure: {
     name: 'Azure',
     fullName: 'Microsoft Azure',
     color: '#0078D4',
     bgColor: 'bg-blue-500',
-    borderColor: 'border-t-[#0078D4]'
+    bgColorTransparent: 'bg-blue-500/20',
+    borderColor: 'border-t-[#0078D4]',
+    borderColorTransparent: 'border-blue-500/30'
   },
   google: {
     name: 'Google',
-    fullName: 'Google Cloud',
+    fullName: 'Google Cloud Platform',
     color: '#4285F4',
     bgColor: 'bg-indigo-500',
-    borderColor: 'google-gradient-border'
+    bgColorTransparent: 'google-gradient-bg',
+    borderColor: 'google-gradient-border',
+    borderColorTransparent: 'border-blue-500/30'
   }
 };
 

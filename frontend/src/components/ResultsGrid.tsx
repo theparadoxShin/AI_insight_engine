@@ -22,19 +22,19 @@ const ResultsGrid: React.FC<ResultsGridProps> = ({
 }) => {
   const t = useTranslation(language);
 
-  // 🔧 FONCTION CORRIGÉE - Accès correct aux données selon votre backend
+  // 🔧 FIXED FUNCTION - Correct data access according to your backend
   const getProviderData = (provider: 'aws' | 'azure' | 'google') => {
     if (!results) {
       console.log('No results available');
       return null;
     }
 
-    // Debug: Afficher la structure complète
+    // Debug: Display the full results structure
     console.log('Full results structure:', results);
     console.log('Analysis type:', analysisType);
     console.log('Provider:', provider);
 
-    // Accès aux données selon votre structure backend
+    // Access the specific analysis data for the selected type
     const analysisData = results[analysisType];
     if (!analysisData) {
       console.log(`No data for analysis type: ${analysisType}`);
@@ -70,7 +70,7 @@ const ResultsGrid: React.FC<ResultsGridProps> = ({
     }
   };
 
-  // 🔧 DEBUG - Afficher les données reçues (à supprimer en production)
+  // 🔧 DEBUG - Display received data
   React.useEffect(() => {
     if (results) {
       console.log('Results received in ResultsGrid:');
