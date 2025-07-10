@@ -13,3 +13,4 @@ frontend/features_to_add.txt
 frontend/logs
 frontend/*.log
 frontend/.vite
+frontend/.env.local

@@ -1,4 +1,5 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import { apiService } from './services/apiService';
 import Header from './components/Header';
 import ModuleSelector from './components/ModuleSelector';
 import TextInput from './components/TextInput';
@@ -16,10 +17,14 @@ import {
   Language 
 } from './types';
 import { MODULES, GENERATION_MODELS } from './utils/constants';
-import { API_URL } from './utils/constants';
 
+/**
+ * Main component of the AI Insight Engine application
+ * Manages global state and orchestrates interactions between components
+ */
 function App() {
-  const [language, setLanguage] = useState<Language>('fr');
+  // Main application states
+  const [language, setLanguage] = useState<Language>('en');
   const [activeModule, setActiveModule] = useState<ModuleType>('textAnalysis');
   const [text, setText] = useState('');
   const [analysisType, setAnalysisType] = useState<AnalysisType>('sentiment');
@@ -41,203 +46,153 @@ function App() {
     isLimited: false
   });
 
-  // Update analysis type when module changes
+  /**
+   * Updates analysis type when module changes
+   * Resets state to avoid inconsistencies
+   */
   useEffect(() => {
     const moduleConfig = MODULES[activeModule];
     if (moduleConfig.analyses.length > 0) {
       setAnalysisType(moduleConfig.analyses[0]);
     }
+    // Reset state when module changes
     setResults(null);
     setText('');
     setUploadedFiles([]);
+    setError(null);
   }, [activeModule]);
 
-  // Mock API function - replace with actual API call
+  /**
+   * Main content analysis function
+   * Uses API service with fallback to mock data
+   * @param inputText - Text to analyze
+   * @param type - Type of analysis to perform
+   * @param files - Uploaded files (optional)
+   */
   const analyzeContent = useCallback(async (
     inputText: string, 
     type: AnalysisType, 
     files?: UploadedFile[]
   ) => {
+    console.log('🚀 Starting analysis:', { type, textLength: inputText.length, filesCount: files?.length || 0 });
+    
     setIsLoading(true);
     setError(null);
 
     try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // Mock rate limiting
+      // Check rate limits
       if (rateLimitInfo.remainingRequests <= 0) {
         setRateLimitInfo(prev => ({ ...prev, isLimited: true }));
-        throw new Error('Rate limit exceeded');
+        throw new Error('Rate limit exceeded. Please wait before making another request.');
       }
 
-      // Mock response based on analysis type and module
-      const mockResults: AnalysisResult = {
-        [type]: {
-          aws: generateMockData(type, 'aws'),
-          azure: generateMockData(type, 'azure'),
-          google: generateMockData(type, 'google')
-        }
-      };
+      // Call API service
+      const response = await apiService.analyzeContent({
+        text: inputText,
+        analysisType: type,
+      });
 
-      setResults(mockResults);
-      setRateLimitInfo(prev => ({
-        ...prev,
-        remainingRequests: prev.remainingRequests - 1
-      }));
+      if (!response.success) {
+        throw new Error(response.error || 'Error during analysis');
+      }
+
+      // Update results
+      if (response.data) {
+        setResults(response.data);
+        console.log('✅ Analysis completed successfully');
+      }
+
+      // Update rate limit information
+      if (response.rateLimitInfo) {
+        setRateLimitInfo(prev => ({
+          ...prev,
+          remainingRequests: response.rateLimitInfo!.remainingRequests,
+          resetTime: response.rateLimitInfo!.resetTime,
+          isLimited: response.rateLimitInfo!.remainingRequests <= 0
+        }));
+      } else {
+        // Decrement local counter if no server info
+        setRateLimitInfo(prev => ({
+          ...prev,
+          remainingRequests: Math.max(0, prev.remainingRequests - 1)
+        }));
+      }
 
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+      console.error('❌ Error during analysis:', errorMessage);
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
-  }, [rateLimitInfo.remainingRequests]);
+  }, [rateLimitInfo.remainingRequests, language, selectedModel]);
 
-  const generateMockData = (type: AnalysisType, provider: string) => {
-    switch (type) {
-      case 'sentiment':
-        return {
-          sentiment: ['POSITIVE', 'NEGATIVE', 'NEUTRAL'][Math.floor(Math.random() * 3)],
-          sentimentScore: {
-            Positive: Math.random() * 0.5 + 0.3,
-            Negative: Math.random() * 0.3,
-            Neutral: Math.random() * 0.4,
-            Mixed: Math.random() * 0.2
-          }
-        };
-      
-      case 'keyPhrases':
-        return [
-          'intelligence artificielle',
-          'apprentissage automatique',
-          'analyse de texte',
-          'traitement du langage naturel',
-          'informatique en nuage'
-        ].slice(0, Math.floor(Math.random() * 3) + 2);
-      
-      case 'entities':
-        return [
-          { text: 'OpenAI', type: 'ORGANIZATION', confidence: 0.95 },
-          { text: 'San Francisco', type: 'LOCATION', confidence: 0.87 },
-          { text: 'GPT-4', type: 'PRODUCT', confidence: 0.92 }
-        ];
-      
-      case 'language':
-        return {
-          languageCode: language === 'fr' ? 'fr' : 'en',
-          score: 0.95 + Math.random() * 0.05
-        };
-      
-      case 'classification':
-        return [
-          { name: 'Technologie', score: 0.85 },
-          { name: 'Business', score: 0.72 },
-          { name: 'Éducation', score: 0.45 }
-        ];
-
-      case 'summary':
-        return {
-          summary: "Ceci est un résumé automatique généré par l'IA. Il capture les points clés du document original en quelques phrases concises et informatives.",
-          originalLength: 1500,
-          summaryLength: 150
-        };
-
-      case 'textGeneration':
-        return {
-          generatedText: "Voici un texte créatif généré par l'IA basé sur votre prompt. Le contenu est original et adapté à votre demande spécifique.",
-          model: selectedModel,
-          tokens: 150
-        };
-
-      case 'imageGeneration':
-        return {
-          imageUrl: `https://picsum.photos/400/400?random=${Math.random()}`,
-          model: selectedModel,
-          resolution: "512x512"
-        };
-
-      case 'imageDescription':
-        return {
-          description: "Cette image montre un paysage urbain moderne avec des gratte-ciel et un ciel bleu. On peut voir des voitures et des piétons dans la rue.",
-          confidence: 0.92
-        };
-
-      case 'objectDetection':
-        return {
-          objects: [
-            { name: 'Voiture', confidence: 0.95, bbox: [100, 150, 200, 250] },
-            { name: 'Personne', confidence: 0.87, bbox: [300, 100, 350, 300] },
-            { name: 'Bâtiment', confidence: 0.92, bbox: [0, 0, 400, 200] }
-          ]
-        };
-
-      case 'ocr':
-        return {
-          extractedText: "Texte extrait de l'image par reconnaissance optique de caractères (OCR).",
-          wordCount: 12,
-          confidence: 0.89
-        };
-
-      case 'contentModeration':
-        return {
-          isAppropriate: Math.random() > 0.3,
-          categories: [
-            { name: 'Violence', score: 0.1 },
-            { name: 'Contenu adulte', score: 0.05 },
-            { name: 'Langage offensant', score: 0.02 }
-          ]
-        };
-
-      case 'ragQuery':
-        return {
-          answer: "Basé sur les documents fournis, voici la réponse à votre question. L'information provient directement des sources que vous avez uploadées.",
-          sources: ['document1.pdf', 'document2.docx'],
-          confidence: 0.88
-        };
-      
-      default:
-        return null;
-    }
-  };
-
-  const handleAnalyze = () => {
+  /**
+   * Handler to trigger analysis
+   * Validates conditions before calling analyzeContent
+   */
+  const handleAnalyze = useCallback(() => {
     const moduleConfig = MODULES[activeModule];
     
+    // Validation based on module input type
     if (moduleConfig.inputType === 'text' && text.trim() && !rateLimitInfo.isLimited) {
       analyzeContent(text, analysisType);
     } else if (moduleConfig.inputType === 'file' && uploadedFiles.length > 0) {
       analyzeContent('', analysisType, uploadedFiles);
     } else if (moduleConfig.inputType === 'documents' && uploadedFiles.length > 0 && text.trim()) {
       analyzeContent(text, analysisType, uploadedFiles);
+    } else {
+      console.warn('⚠️ Analysis conditions not met');
     }
-  };
+  }, [activeModule, text, analysisType, uploadedFiles, rateLimitInfo.isLimited, analyzeContent]);
 
-  const handleViewCode = (provider: string) => {
+  /**
+   * Opens code viewer for a specific provider
+   * @param provider - Cloud provider (aws, azure, google)
+   */
+  const handleViewCode = useCallback((provider: string) => {
+    console.log('📖 Opening code viewer for:', provider);
     setCodeViewer({
       isOpen: true,
       provider
     });
-  };
+  }, []);
 
-  const handleCloseCodeViewer = () => {
+  /**
+   * Closes the code viewer
+   */
+  const handleCloseCodeViewer = useCallback(() => {
     setCodeViewer({
       isOpen: false,
       provider: 'aws'
     });
-  };
+  }, []);
 
-  const handleFilesUpload = (files: UploadedFile[]) => {
+  /**
+   * Handler for file uploads
+   * @param files - List of uploaded files
+   */
+  const handleFilesUpload = useCallback((files: UploadedFile[]) => {
+    console.log('📁 Files uploaded:', files.length);
     setUploadedFiles(files);
-  };
+    // Reset previous results
+    setResults(null);
+    setError(null);
+  }, []);
 
-  // Reset rate limit periodically
+  /**
+   * Periodically resets rate limits
+   * Simulates real API behavior with sliding window
+   */
   useEffect(() => {
     const interval = setInterval(() => {
       setRateLimitInfo(prev => {
         if (Date.now() > prev.resetTime) {
+          console.log('🔄 Resetting rate limits');
           return {
-            remainingRequests: 50,
-            resetTime: Date.now() + 3600000,
+            remainingRequests: 10,
+            resetTime: Date.now() + 3600000, // 1 hour
             isLimited: false
           };
         }
@@ -248,35 +203,56 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
+  /**
+   * Checks if analysis can be triggered
+   * Based on module input type and conditions
+   */
+  const canAnalyze = useMemo(() => {
+    if (rateLimitInfo.isLimited) return false;
+    
+    const moduleConfig = MODULES[activeModule];
+    
+    switch (moduleConfig.inputType) {
+      case 'text':
+        return text.trim().length > 0;
+      case 'file':
+      case 'image':
+        return uploadedFiles.length > 0;
+      case 'documents':
+        return uploadedFiles.length > 0 && text.trim().length > 0;
+      default:
+        return false;
+    }
+  }, [activeModule, text, uploadedFiles, rateLimitInfo.isLimited]);
+
+  // Get current module configuration
   const moduleConfig = MODULES[activeModule];
-  const canAnalyze = !rateLimitInfo.isLimited && (
-    (moduleConfig.inputType === 'text' && text.trim()) ||
-    (moduleConfig.inputType === 'file' && uploadedFiles.length > 0) ||
-    (moduleConfig.inputType === 'image' && uploadedFiles.length > 0) ||
-    (moduleConfig.inputType === 'documents' && uploadedFiles.length > 0 && text.trim())
-  );
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      <div className="mx-auto px-4 py-8" style={{ maxWidth: '90rem' }}>
+      <div className="mx-auto px-4 py-8" style={{ maxWidth: '89rem' }}>
+        {/* Header with title, description and links */}
         <Header language={language} onLanguageChange={setLanguage} />
         
         <div className="space-y-6">
+          {/* Module selector */}
           <ModuleSelector
             activeModule={activeModule}
             onModuleChange={setActiveModule}
             language={language}
           />
 
+          {/* Rate limit warning */}
           <RateLimitWarning rateLimitInfo={rateLimitInfo} language={language} />
           
+          {/* Text input area for appropriate modules */}
           {(moduleConfig.inputType === 'text' || moduleConfig.inputType === 'documents') && (
             <TextInput
               value={text}
               onChange={setText}
               onAnalyze={handleAnalyze}
               isLoading={isLoading}
-              isDisabled={rateLimitInfo.isLimited}
+              isDisabled={!canAnalyze}
               module={activeModule}
               language={language}
               selectedModel={activeModule === 'contentGeneration' ? selectedModel : undefined}
@@ -284,6 +260,7 @@ function App() {
             />
           )}
 
+          {/* File upload area for appropriate modules */}
           {(moduleConfig.inputType === 'file' || 
             moduleConfig.inputType === 'image' || 
             moduleConfig.inputType === 'documents') && (
@@ -295,6 +272,7 @@ function App() {
             />
           )}
           
+          {/* Analysis type tabs */}
           <AnalysisTabs
             activeTab={analysisType}
             onTabChange={setAnalysisType}
@@ -302,6 +280,7 @@ function App() {
             language={language}
           />
           
+          {/* Error display */}
           {error && (
             <div className="bg-red-900/20 border border-red-500/20 rounded-lg p-4 text-red-400">
               <div className="flex items-center gap-2">
@@ -311,6 +290,7 @@ function App() {
             </div>
           )}
           
+          {/* Results grid for 3 providers */}
           <ResultsGrid
             results={results}
             analysisType={analysisType}
@@ -322,6 +302,7 @@ function App() {
         </div>
       </div>
       
+      {/* Code viewer modal */}
       <CodeViewer
         isOpen={codeViewer.isOpen}
         onClose={handleCloseCodeViewer}

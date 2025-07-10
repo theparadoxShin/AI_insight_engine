@@ -20,8 +20,8 @@ const ModuleSelector: React.FC<ModuleSelectorProps> = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
       {Object.values(MODULES).map((module) => {
-        // Modules temporairement désactivés
-        const isDisabled = module.id === 'computerVision' || module.id === 'ragPlayground';
+        // Temporarily disabled modules
+        const isDisabled = module.id === 'computerVision' || module.id === 'ragPlayground' || module.id === 'documentAnalysis' || module.id === 'contentGeneration';
         
         return (
           <button

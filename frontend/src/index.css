@@ -13,3 +13,7 @@
   border-image: linear-gradient(to right, var(--google-color-1), var(--google-color-2), var(--google-color-3), var(--google-color-4)) 1;
   border-top: 4px solid;
 }
+
+.google-gradient-bg {
+  background: linear-gradient(to right, var(--google-color-1), var(--google-color-2), var(--google-color-3), var(--google-color-4));
+}
