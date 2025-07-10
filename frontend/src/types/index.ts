@@ -1,9 +1,9 @@
 export interface AnalysisResult {
-  sentiment?: { aws?: any; azure?: any; google?: any };
-  keyPhrases?: { aws?: string[]; azure?: string[]; google?: string[] };
-  entities?: { aws?: Entity[]; azure?: Entity[]; google?: Entity[] };
-  language?: { aws?: any; azure?: any; google?: any };
-  classification?: { aws?: any; azure?: any; google?: any };
+  sentiment?: SentimentData;
+  keyPhrases?: KeyPhrasesData;
+  entities?: EntitiesData;
+  language?: LanguageData;
+  classification?: ClassificationData;
   summary?: { aws?: any; azure?: any; google?: any };
   formRecognition?: { aws?: any; azure?: any; google?: any };
   textGeneration?: { aws?: any; azure?: any; google?: any };
@@ -19,6 +19,96 @@ export interface Entity {
   text: string;
   type: string;
   confidence: number;
+}
+
+export interface SentimentData {
+  // AWS Format
+  aws?: {
+    sentiment: 'POSITIVE' | 'NEGATIVE' | 'NEUTRAL' | 'MIXED';
+    scores: {
+      Mixed: number;
+      Negative: number;
+      Neutral: number;
+      Positive: number;
+    };
+  };
+  
+  // Azure Format
+  azure?: {
+    sentiment: 'positive' | 'negative' | 'neutral' | 'mixed';
+    scores: {
+      positive: number;
+      neutral: number;
+      negative: number;
+    };
+    languages?: {
+      primaryLanguage: {
+        name: string;
+        iso6391Name: string;
+        confidenceScore: number;
+      };
+      id: string;
+      warnings: any[];
+    };
+  };
+  
+  // Google Format
+  google?: {
+    sentiment: {
+      magnitude: number;
+      score: number;
+    };
+  };
+}
+
+export interface KeyPhrasesData {
+  aws?: string[];
+  azure?: string[];
+  google?: string[];
+}
+
+export interface EntityData {
+  text: string;
+  type: string;
+  confidence: number;
+  offset?: number;
+  length?: number;
+}
+
+export interface EntitiesData {
+  aws?: EntityData[];
+  azure?: EntityData[];
+  google?: EntityData[];
+}
+
+export interface LanguageData {
+  aws?: Array<{
+    language: string;
+    confidence: number;
+  }>;
+  azure?: {
+    language: string;
+    confidence: number;
+  };
+  google?: {
+    language: string;
+    confidence: number;
+  };
+}
+
+export interface ClassificationData {
+  aws?: Array<{
+    category: string;
+    confidence: number;
+  }>;
+  azure?: Array<{
+    category: string;
+    confidence: number;
+  }>;
+  google?: Array<{
+    category: string;
+    confidence: number;
+  }>;
 }
 
 export type AnalysisType = 
@@ -102,11 +192,11 @@ export interface RAGDocument {
   embeddings?: number[][];
 }
 
-export type Language = 'fr' | 'en';
+export type Language = 'en' | 'fr';
 
 export interface Translation {
   [key: string]: {
-    fr: string;
     en: string;
+    fr: string;
   };
 }

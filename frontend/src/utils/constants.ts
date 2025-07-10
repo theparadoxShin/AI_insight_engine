@@ -183,5 +183,3 @@ export const SUPPORTED_FILE_TYPES = {
   documents: ['.pdf', '.docx', '.txt'],
   images: ['.jpg', '.jpeg', '.png', '.gif', '.webp']
 };
-
-export const API_URL = '/api/analyze';

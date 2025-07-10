@@ -18,6 +18,10 @@ export const translations: Translation = {
     fr: "Me soutenir",
     en: "Support me"
   },
+  comingSoon: {
+    fr: "Sera disponible bientôt",
+    en: "Coming Soon"
+  },
   
   // Modules
   textAnalysisModule: {

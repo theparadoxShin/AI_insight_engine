@@ -59,7 +59,7 @@ export default async function handler(
         }
         const documents = [text];
 
-        // --- On exécute les appels API en parallèle, comme avant ---
+        // --- On exécute les appels API en parallèle ---
         const [azureResult, googleResult, awsResult] = await Promise.all([
             getAzureAnalyze(documents),
             getGoogleAnalyze(documents),
@@ -68,9 +68,11 @@ export default async function handler(
         
         // --- On retourne le résultat combiné ---
         return res.status(200).json({
-            azure: azureResult,
-            google: googleResult,
-            aws: awsResult,
+            sentiment: {
+                azure: azureResult,
+                google: googleResult,
+                aws: awsResult,
+            },
             message: 'Sentiment analysis completed successfully.',
         });
 
