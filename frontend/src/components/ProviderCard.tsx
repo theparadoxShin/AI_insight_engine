@@ -438,16 +438,17 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className={clsx(
-            "w-10 h-10 rounded-lg flex items-center justify-center",
-            providerConfig.bgColor
-          )}>
-            {provider === 'aws' && <Cloud className="w-5 h-5 text-white" />}
-            {provider === 'azure' && <Database className="w-5 h-5 text-white" />}
-            {provider === 'google' && <Zap className="w-5 h-5 text-white" />}
+      "w-10 h-10 rounded-lg flex items-center justify-center border",
+      providerConfig.bgColorTransparent,
+      providerConfig.borderColorTransparent
+    )}>
+            {provider === 'aws' && <Cloud className="w-5 h-5" style={{color: '#FF9900'}} />}
+            {provider === 'azure' && <Cloud className="w-5 h-5" style={{color: '#0078D4'}} />}
+            {provider === 'google' && <Cloud className="w-5 h-5" />}
           </div>
           <div>
-            <h3 className="font-medium text-white">{providerConfig.name}</h3>
-            <p className="text-sm text-gray-400">{providerConfig.fullName}</p>
+            <h3 className="text-lg font-medium text-white">{providerConfig.name}</h3>
+            <p className="text-xs text-gray-400">{providerConfig.fullName}</p>
           </div>
         </div>
         
