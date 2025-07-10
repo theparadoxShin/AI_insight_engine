@@ -4,3 +4,11 @@ backend/.env
 
 ############  Vercel  ############
 .vercel
+
+############  Frontend  ############
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/features_to_add.txt
+frontend/logs
+frontend/*.log

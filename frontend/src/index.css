@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --google-color-1: #4285F4;
+  --google-color-2: #EA4335;
+  --google-color-3: #FBBC05;
+  --google-color-4: #34A853;
+}
+
+.google-gradient-border {
+  border-image: linear-gradient(to right, var(--google-color-1), var(--google-color-2), var(--google-color-3), var(--google-color-4)) 1;
+  border-top: 4px solid;
+}
