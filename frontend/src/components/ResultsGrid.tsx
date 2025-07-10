@@ -22,8 +22,37 @@ const ResultsGrid: React.FC<ResultsGridProps> = ({
 }) => {
   const t = useTranslation(language);
 
+  // 🔧 FONCTION CORRIGÉE - Accès correct aux données selon votre backend
   const getProviderData = (provider: 'aws' | 'azure' | 'google') => {
-    return results?.[analysisType]?.[provider] || null;
+    if (!results) {
+      console.log('No results available');
+      return null;
+    }
+
+    // Debug: Afficher la structure complète
+    console.log('Full results structure:', results);
+    console.log('Analysis type:', analysisType);
+    console.log('Provider:', provider);
+
+    // Accès aux données selon votre structure backend
+    const analysisData = results[analysisType];
+    if (!analysisData) {
+      console.log(`No data for analysis type: ${analysisType}`);
+      console.log('Available analysis types:', Object.keys(results));
+      return null;
+    }
+
+    console.log(`Analysis data for ${analysisType}:`, analysisData);
+
+    const providerData = analysisData[provider];
+    if (!providerData) {
+      console.log(`No data for provider: ${provider}`);
+      console.log('Available providers:', Object.keys(analysisData));
+      return null;
+    }
+
+    console.log(`Provider data for ${provider}:`, providerData);
+    return providerData;
   };
 
   const getEmptyStateMessage = () => {
@@ -40,6 +69,23 @@ const ResultsGrid: React.FC<ResultsGridProps> = ({
         return "Entrez du texte et cliquez sur 'Analyser' pour voir les insights IA des trois providers";
     }
   };
+
+  // 🔧 DEBUG - Afficher les données reçues (à supprimer en production)
+  React.useEffect(() => {
+    if (results) {
+      console.log('Results received in ResultsGrid:');
+      console.log('- Full results:', results);
+      console.log('- Analysis type:', analysisType);
+      console.log('- Available keys:', Object.keys(results));
+      
+      if (results[analysisType]) {
+        console.log(`- ${analysisType} data:`, results[analysisType]);
+        console.log(`- Available providers:`, Object.keys(results[analysisType] || {}));
+      } else {
+        console.log(`No data found for ${analysisType}`);
+      }
+    }
+  }, [results, analysisType]);
 
   return (
     <div className="space-y-6">

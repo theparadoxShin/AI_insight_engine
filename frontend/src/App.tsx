@@ -91,9 +91,6 @@ function App() {
       const response = await apiService.analyzeContent({
         text: inputText,
         analysisType: type,
-        files: files,
-        language: language,
-        model: selectedModel
       });
 
       if (!response.success) {

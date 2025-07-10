@@ -26,6 +26,24 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
   const t = useTranslation(language);
   const providerConfig = PROVIDERS[provider];
 
+  // 🔧 DEBUG - Afficher les données reçues
+  React.useEffect(() => {
+    if (data) {
+      console.log(`🔍 ${provider.toUpperCase()} data for ${analysisType}:`, data);
+    }
+  }, [data, provider, analysisType]);
+
+  const getSentimentEmoji = (sentiment: string) => {
+    const sentimentLower = sentiment.toLowerCase();
+    switch (sentimentLower) {
+      case 'positive': return '😊';
+      case 'negative': return '😞';
+      case 'neutral': return '😐';
+      case 'mixed': return '🤔';
+      default: return '❓';
+    }
+  };
+
   const renderContent = () => {
     if (isLoading) {
       return (
@@ -45,192 +63,317 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
 
     switch (analysisType) {
       case 'sentiment':
-        return (
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">
-                {data.sentiment === 'POSITIVE' ? '😊' : 
-                 data.sentiment === 'NEGATIVE' ? '😢' : 
-                 data.sentiment === 'NEUTRAL' ? '😐' : '🤔'}
-              </span>
-              <span className="font-medium capitalize">{data.sentiment}</span>
-            </div>
-            {data.sentimentScore && (
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div>Positive: {(data.sentimentScore.Positive * 100).toFixed(1)}%</div>
-                <div>Negative: {(data.sentimentScore.Negative * 100).toFixed(1)}%</div>
-                <div>Neutral: {(data.sentimentScore.Neutral * 100).toFixed(1)}%</div>
-                <div>Mixed: {(data.sentimentScore.Mixed * 100).toFixed(1)}%</div>
-              </div>
-            )}
-          </div>
-        );
+        return renderSentimentData();
 
       case 'keyPhrases':
-        return (
-          <div className="space-y-2">
-            {data.map((phrase: string, index: number) => (
-              <span
-                key={index}
-                className="inline-block bg-gray-700 text-gray-200 px-2 py-1 rounded text-sm mr-2 mb-2"
-              >
-                {phrase}
-              </span>
-            ))}
-          </div>
-        );
+        return renderKeyPhrasesData();
 
       case 'entities':
-        return (
-          <div className="space-y-2">
-            {data.map((entity: any, index: number) => (
-              <div key={index} className="flex justify-between items-center py-1">
-                <div>
-                  <span className="font-medium">{entity.text}</span>
-                  <span className="text-sm text-gray-400 ml-2">({entity.type})</span>
-                </div>
-                <span className="text-sm text-gray-400">
-                  {(entity.confidence * 100).toFixed(1)}%
-                </span>
-              </div>
-            ))}
-          </div>
-        );
+        return renderEntitiesData();
 
       case 'language':
-        return (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">🌐</span>
-              <span className="font-medium">{data.languageCode}</span>
-            </div>
-            <div className="text-sm text-gray-400">
-              Confidence: {(data.score * 100).toFixed(1)}%
-            </div>
-          </div>
-        );
+        return renderLanguageData();
 
       case 'classification':
-        return (
-          <div className="space-y-2">
-            {data.map((category: any, index: number) => (
-              <div key={index} className="flex justify-between items-center py-1">
-                <span className="font-medium">{category.name}</span>
-                <span className="text-sm text-gray-400">
-                  {(category.score * 100).toFixed(1)}%
-                </span>
-              </div>
-            ))}
-          </div>
-        );
+        return renderClassificationData();
 
+      // Autres cas existants (pas encore implémentés côté backend)
       case 'summary':
-        return (
-          <div className="space-y-2">
-            <p className="text-gray-200 leading-relaxed">{data.summary}</p>
-            <div className="text-sm text-gray-400">
-              Longueur: {data.summary?.length || 0} caractères
-            </div>
-          </div>
-        );
-
       case 'textGeneration':
-        return (
-          <div className="space-y-2">
-            <p className="text-gray-200 leading-relaxed">{data.generatedText}</p>
-            <div className="text-sm text-gray-400">
-              Modèle: {data.model} | Tokens: {data.tokens}
-            </div>
-          </div>
-        );
-
       case 'imageGeneration':
-        return (
-          <div className="space-y-2">
-            {data.imageUrl && (
-              <img 
-                src={data.imageUrl} 
-                alt="Generated image" 
-                className="w-full rounded-lg"
-              />
-            )}
-            <div className="text-sm text-gray-400">
-              Modèle: {data.model} | Résolution: {data.resolution}
-            </div>
-          </div>
-        );
-
       case 'imageDescription':
-        return (
-          <div className="space-y-2">
-            <p className="text-gray-200 leading-relaxed">{data.description}</p>
-            <div className="text-sm text-gray-400">
-              Confiance: {(data.confidence * 100).toFixed(1)}%
-            </div>
-          </div>
-        );
-
       case 'objectDetection':
-        return (
-          <div className="space-y-2">
-            {data.objects?.map((obj: any, index: number) => (
-              <div key={index} className="flex justify-between items-center py-1">
-                <span className="font-medium">{obj.name}</span>
-                <span className="text-sm text-gray-400">
-                  {(obj.confidence * 100).toFixed(1)}%
-                </span>
-              </div>
-            ))}
-          </div>
-        );
-
       case 'ocr':
-        return (
-          <div className="space-y-2">
-            <p className="text-gray-200 leading-relaxed">{data.extractedText}</p>
-            <div className="text-sm text-gray-400">
-              Mots détectés: {data.wordCount}
-            </div>
-          </div>
-        );
-
       case 'contentModeration':
-        return (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">
-                {data.isAppropriate ? '✅' : '⚠️'}
-              </span>
-              <span className="font-medium">
-                {data.isAppropriate ? 'Contenu approprié' : 'Contenu inapproprié'}
-              </span>
-            </div>
-            {data.categories && (
-              <div className="space-y-1">
-                {data.categories.map((cat: any, index: number) => (
-                  <div key={index} className="flex justify-between text-sm">
-                    <span>{cat.name}</span>
-                    <span className="text-gray-400">{(cat.score * 100).toFixed(1)}%</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        );
-
       case 'ragQuery':
         return (
-          <div className="space-y-2">
-            <p className="text-gray-200 leading-relaxed">{data.answer}</p>
-            <div className="text-sm text-gray-400">
-              Sources: {data.sources?.length || 0} documents
+          <div className="text-center py-4 text-gray-500">
+            <div className="text-sm">Feature coming soon...</div>
+            <div className="text-xs text-gray-600 mt-1">
+              {analysisType} not yet implemented
             </div>
           </div>
         );
 
       default:
-        return <div className="text-gray-500">Unknown analysis type</div>;
+        return (
+          <div className="space-y-2">
+            <div className="text-sm font-medium text-gray-600 dark:text-gray-400">Raw Data:</div>
+            <pre className="text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-auto max-h-32">
+              {JSON.stringify(data, null, 2)}
+            </pre>
+          </div>
+        );
     }
+  };
+
+  // 🔧 SENTIMENT ANALYSIS - Gestion par provider
+  const renderSentimentData = () => {
+    if (!data) return <div className="text-gray-500">No sentiment data</div>;
+
+    console.log(`🎭 Rendering ${provider} sentiment:`, data);
+
+    if (provider === 'aws') {
+      // Format AWS: { sentiment: "NEGATIVE", scores: { Mixed: 0.001, Negative: 0.997, ... } }
+      const sentiment = data.sentiment || 'UNKNOWN';
+      const scores = data.scores || {};
+      
+      return (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">{getSentimentEmoji(sentiment)}</span>
+            <span className="font-medium text-lg capitalize">
+              {sentiment.toLowerCase()}
+            </span>
+          </div>
+          <div className="space-y-2">
+            <div className="text-sm font-medium text-gray-400">Confidence Scores:</div>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              {Object.entries(scores).map(([key, value]) => (
+                <div key={key} className="flex justify-between">
+                  <span className="capitalize">{key}:</span>
+                  <span className="font-mono">{(Number(value) * 100).toFixed(1)}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (provider === 'azure') {
+      // Format Azure: { sentiment: "negative", scores: { positive: 0, neutral: 0.01, negative: 0.98 }, languages: {...} }
+      const sentiment = data.sentiment || 'unknown';
+      const scores = data.scores || {};
+      const languages = data.languages;
+      
+      return (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">{getSentimentEmoji(sentiment)}</span>
+            <span className="font-medium text-lg capitalize">
+              {sentiment}
+            </span>
+          </div>
+          <div className="space-y-2">
+            <div className="text-sm font-medium text-gray-400">Confidence Scores:</div>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              {Object.entries(scores).map(([key, value]) => (
+                <div key={key} className="flex justify-between">
+                  <span className="capitalize">{key}:</span>
+                  <span className="font-mono">{(Number(value) * 100).toFixed(1)}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          {languages && languages.primaryLanguage && (
+            <div className="mt-3 pt-3 border-t border-gray-600">
+              <div className="text-sm font-medium text-gray-400">Language:</div>
+              <div className="text-sm">
+                {languages.primaryLanguage.name} ({languages.primaryLanguage.iso6391Name}) - 
+                {(languages.primaryLanguage.confidenceScore * 100).toFixed(1)}%
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    if (provider === 'google') {
+      // Format Google: { sentiment: { magnitude: 0.89, score: -0.89 } }
+      const sentimentData = data.sentiment;
+      if (!sentimentData) {
+        return <div className="text-gray-500">No Google sentiment data</div>;
+      }
+
+      const { score, magnitude } = sentimentData;
+      
+      // Calculer le sentiment basé sur le score
+      let sentimentLabel = 'NEUTRAL';
+      if (score > 0.25) sentimentLabel = 'POSITIVE';
+      else if (score < -0.25) sentimentLabel = 'NEGATIVE';
+      else if (Math.abs(score) <= 0.25 && magnitude > 0.5) sentimentLabel = 'MIXED';
+      
+      return (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">{getSentimentEmoji(sentimentLabel)}</span>
+            <span className="font-medium text-lg">
+              {sentimentLabel}
+            </span>
+          </div>
+          <div className="space-y-2">
+            <div className="text-sm font-medium text-gray-400">Google Metrics:</div>
+            <div className="space-y-1">
+              <div className="flex justify-between items-center">
+                <span className="text-sm">Score:</span>
+                <span className="text-sm font-mono">{score.toFixed(3)}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm">Magnitude:</span>
+                <span className="text-sm font-mono">{magnitude.toFixed(3)}</span>
+              </div>
+              <div className="text-xs text-gray-500 mt-2">
+                Score: -1 (negative) to +1 (positive)<br/>
+                Magnitude: 0 (no emotion) to +∞ (strong emotion)
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Fallback pour données inconnues
+    return (
+      <div className="space-y-2">
+        <div className="text-sm font-medium text-gray-400">Unknown Format:</div>
+        <pre className="text-xs bg-gray-700 p-2 rounded overflow-auto max-h-32">
+          {JSON.stringify(data, null, 2)}
+        </pre>
+      </div>
+    );
+  };
+
+  // 🔧 KEY PHRASES - Affichage selon le format de chaque provider
+  const renderKeyPhrasesData = () => {
+    if (!data) return <div className="text-gray-500">No key phrases data</div>;
+
+    // Si c'est un array direct (format attendu)
+    if (Array.isArray(data)) {
+      return (
+        <div className="space-y-2">
+          <div className="text-sm font-medium text-gray-400">Key Phrases:</div>
+          <div className="flex flex-wrap gap-1">
+            {data.map((phrase: string, index: number) => (
+              <span
+                key={index}
+                className="inline-block bg-gray-700 text-gray-200 px-2 py-1 rounded text-sm"
+              >
+                {phrase}
+              </span>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // Fallback pour autres formats
+    return (
+      <div className="space-y-2">
+        <div className="text-sm font-medium text-gray-400">Raw Data:</div>
+        <pre className="text-xs bg-gray-700 p-2 rounded overflow-auto max-h-32">
+          {JSON.stringify(data, null, 2)}
+        </pre>
+      </div>
+    );
+  };
+
+  // 🔧 ENTITIES - Affichage des entités
+  const renderEntitiesData = () => {
+    if (!data) return <div className="text-gray-500">No entities data</div>;
+
+    if (Array.isArray(data)) {
+      return (
+        <div className="space-y-2">
+          <div className="text-sm font-medium text-gray-400">Entities:</div>
+          <div className="space-y-2">
+            {data.map((entity: any, index: number) => (
+              <div key={index} className="bg-gray-700 p-2 rounded text-sm">
+                <div className="font-medium">{entity.text}</div>
+                <div className="text-gray-400 text-xs mt-1">
+                  {entity.type} • {(entity.confidence * 100).toFixed(1)}% confidence
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-2">
+        <div className="text-sm font-medium text-gray-400">Raw Data:</div>
+        <pre className="text-xs bg-gray-700 p-2 rounded overflow-auto max-h-32">
+          {JSON.stringify(data, null, 2)}
+        </pre>
+      </div>
+    );
+  };
+
+  // 🔧 LANGUAGE DETECTION
+  const renderLanguageData = () => {
+    if (!data) return <div className="text-gray-500">No language data</div>;
+
+    // Format AWS: array de langues
+    if (Array.isArray(data)) {
+      return (
+        <div className="space-y-2">
+          <div className="text-sm font-medium text-gray-400">Detected Languages:</div>
+          {data.map((lang: any, index: number) => (
+            <div key={index} className="flex justify-between items-center">
+              <span className="font-medium">{lang.language}</span>
+              <span className="text-sm text-gray-400">{(lang.confidence * 100).toFixed(1)}%</span>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    // Format Azure/Google: objet unique
+    if (data.language || data.languageCode) {
+      return (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">🌐</span>
+            <span className="font-medium">{data.language || data.languageCode}</span>
+          </div>
+          <div className="text-sm text-gray-400">
+            Confidence: {(data.confidence * 100).toFixed(1)}%
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-2">
+        <div className="text-sm font-medium text-gray-400">Raw Data:</div>
+        <pre className="text-xs bg-gray-700 p-2 rounded overflow-auto max-h-32">
+          {JSON.stringify(data, null, 2)}
+        </pre>
+      </div>
+    );
+  };
+
+  // 🔧 TEXT CLASSIFICATION
+  const renderClassificationData = () => {
+    if (!data) return <div className="text-gray-500">No classification data</div>;
+
+    if (Array.isArray(data)) {
+      return (
+        <div className="space-y-2">
+          <div className="text-sm font-medium text-gray-400">Categories:</div>
+          <div className="space-y-2">
+            {data.map((item: any, index: number) => (
+              <div key={index} className="flex justify-between items-center py-1">
+                <span className="font-medium">{item.category || item.name}</span>
+                <span className="text-sm text-gray-400">
+                  {((item.confidence || item.score) * 100).toFixed(1)}%
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-2">
+        <div className="text-sm font-medium text-gray-400">Raw Data:</div>
+        <pre className="text-xs bg-gray-700 p-2 rounded overflow-auto max-h-32">
+          {JSON.stringify(data, null, 2)}
+        </pre>
+      </div>
+    );
   };
 
   return (

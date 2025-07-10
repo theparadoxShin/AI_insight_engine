@@ -9,7 +9,7 @@ const getEnvVar = (name: keyof ImportMetaEnv, defaultValue?: string): string => 
 export const config = {
   // API Configuration
   API_BASE_URL: getEnvVar('VITE_API_URL', 'http://localhost:3000/api'),
-  USE_MOCK_DATA: getEnvVar('VITE_USE_MOCK_DATA', 'false') === 'false',
+  USE_MOCK_DATA: getEnvVar('VITE_USE_MOCK_DATA', 'false') === 'true',
   
   // App Configuration
   APP_NAME: getEnvVar('VITE_APP_NAME', 'AI Insight Engine'),
