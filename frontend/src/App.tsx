@@ -24,7 +24,7 @@ import { MODULES, GENERATION_MODELS } from './utils/constants';
  */
 function App() {
   // Main application states
-  const [language, setLanguage] = useState<Language>('fr');
+  const [language, setLanguage] = useState<Language>('en');
   const [activeModule, setActiveModule] = useState<ModuleType>('textAnalysis');
   const [text, setText] = useState('');
   const [analysisType, setAnalysisType] = useState<AnalysisType>('sentiment');
