@@ -1,40 +1,49 @@
-# AI_insight_engine
-A serverless "Playground" to test, compare, and integrate AI services from the cloud giants (AWS, Azure, & GCP) into your own applications.
+# AI Insight Engine v2.0
 
----
+[![Deploy](https://img.shields.io/badge/Deploy-Vercel-black)](https://ai-insight-engine.vercel.app)
+[![Version](https://img.shields.io/badge/Version-2.0.0-blue)](https://github.com/theparadoxshin/ai-insight-engine/releases)
+[![License](https://img.shields.io/badge/License-MIT-green)](./LICENSE)
 
-# 🤔 The Problem This Project Solves
-Getting started with AI using cloud services can be intimidating. The documentation is dense, a_c_c_e_s_s configuration is complex, and it's hard to know which service to choose.
+> The fastest way to test, compare, and integrate AI services from AWS, Azure, and Google Cloud
 
-AI Insight Engine was created to be the "Rosetta Stone" for AI APIs. It aims to accelerate developers' learning by providing an interactive platform to:
+## 🌟 What's New in v2.0
 
-- Test and visualize the results from different AIs.
+- ✅ **Complete React Migration** - Modern TypeScript codebase
+- ✅ **5 Analysis Types** - Sentiment, Entities, Key Phrases, Language, Classification
+- ✅ **Interactive Code Viewer** - Copy-paste ready examples
+- ✅ **Multi-language Support** - English & French
+- ✅ **Rate Limiting Protection** - Cost management built-in
+- ✅ **Mobile Optimized** - Works perfectly on all devices
 
-- Compare their performance on the same piece of text.
+## 🚀 Live Demo
 
-- Provide ready-to-use code snippets to integrate these services into your own projects.
+**Try it now:** [ai-insight-engine.vercel.app](https://ai-insight-engine.vercel.app)
 
----
+## 📊 AI Analysis Types
 
-# ✨ Features (Current Modules)
+| Analysis | Description | Providers |
+|----------|-------------|-----------|
+| 😊 **Sentiment** | Emotional tone detection | AWS, Azure, Google |
+| 🔑 **Key Phrases** | Main topics extraction | AWS, Azure, Google |
+| 👥 **Entities** | People, places, organizations | AWS, Azure, Google |
+| 🌐 **Language** | Automatic language detection | AWS, Azure, Google |
+| 📁 **Classification** | Content categorization | AWS, Azure, Google |
 
-- Sentiment Analysis: Detailed score (Positive, Negative, Neutral, Mixed).
+## 💻 Code Examples
 
-- Key Phrase Extraction: Identification of main topics.
+Each analysis includes ready-to-use code snippets for:
+- **AWS SDK** with Comprehend
+- **Azure SDK** with Text Analytics  
+- **Google Cloud** with Natural Language
 
-- Entity Recognition: Detection of people, places, organizations...
+## 🛡️ Built-in Protection
 
-- Language Detection: Automatic identification of the text's language.
+- **Rate Limiting**: 50 requests/hour per IP
+- **Text Validation**: 10-5000 characters
+- **Cost Management**: Intelligent caching
+- **Error Handling**: User-friendly messages
 
----
 
-# Technical Stack (Current)
-
-| Layer | Tech |
-|-------|------|
-| Platform | Web Vercel |
-| Frontend | HTML/CSS/JS |
-| Backend  | Typescript |
 
 
 # ⚙️ Setup (Essential Step)
@@ -66,7 +75,10 @@ To use this project, you must provide your own API keys. Here is how to get them
 git clone
 cd backend
 npm install
-node api/analyze / vercel dev (depend on your local runtime environment)
-open index.html in browser
+node api/analyze |  vercel dev (depend on your local runtime environment)
+---
+cd frontend
+npm install
+npm run dev
 Enjoy
 ```
