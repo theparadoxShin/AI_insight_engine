@@ -14,7 +14,7 @@ import {
 dotenv.config();
 
 // ==========================================
-// 🛡️ RATE LIMITING CONFIGURATION (Conservé)
+// RATE LIMITING CONFIGURATION (Conservé)
 // ==========================================
 
 const RATE_LIMITS = {
@@ -185,7 +185,7 @@ function setCachedResult(cacheKey: string, result: any): void {
 }
 
 // ==========================================
-// 🚀 MAIN HANDLER - ÉTENDU POUR TOUTES LES ANALYSES
+// MAIN HANDLER - ÉTENDU POUR TOUTES LES ANALYSES
 // ==========================================
 
 export default async function handler(
@@ -312,7 +312,7 @@ export default async function handler(
 }
 
 // ==========================================
-// 😊 SENTIMENT ANALYSIS (Existant)
+// SENTIMENT ANALYSIS (Existant)
 // ==========================================
 
 async function performSentimentAnalysis(texts: string[]) {
@@ -388,7 +388,7 @@ async function getAWSSentiment(texts: string[]) {
 }
 
 // ==========================================
-// 🔑 KEY PHRASE EXTRACTION (Nouveau)
+// KEY PHRASE EXTRACTION (Nouveau)
 // ==========================================
 
 async function performKeyPhraseExtraction(texts: string[]) {
@@ -464,7 +464,7 @@ async function getAWSKeyPhrases(texts: string[]) {
 }
 
 // ==========================================
-// 👥 ENTITY RECOGNITION (Nouveau)
+// ENTITY RECOGNITION (Nouveau)
 // ==========================================
 
 async function performEntityRecognition(texts: string[]) {
@@ -550,7 +550,7 @@ async function getAWSEntities(texts: string[]) {
 }
 
 // ==========================================
-// 🌐 LANGUAGE DETECTION (Nouveau)
+// LANGUAGE DETECTION (Nouveau)
 // ==========================================
 
 async function performLanguageDetection(texts: string[]) {
@@ -626,7 +626,7 @@ async function getAWSLanguage(texts: string[]) {
 }
 
 // ==========================================
-// 📁 TEXT CLASSIFICATION (Nouveau)
+// TEXT CLASSIFICATION (Nouveau)
 // ==========================================
 
 async function performTextClassification(texts: string[]) {
