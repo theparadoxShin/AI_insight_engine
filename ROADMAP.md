@@ -10,17 +10,17 @@ Feel free to open an **Issue** to suggest new features!
     - [x] AWS (Comprehend)
     - [x] Azure (AI Language)
     - [x] Google Cloud (Natural Language API)
-- [ ] Key Phrase Extraction
-    - [ ] AWS (Comprehend)
-    - [ ] Azure (AI Language)
-- [ ] Named Entity Recognition (NER)
-    - [ ] AWS (Comprehend)
-    - [ ] Azure (AI Language)
-    - [ ] Google Cloud (Natural Language API)
-- [ ] Language Detection
-    - [ ] AWS (Comprehend)
-    - [ ] Azure (AI Language)
-    - [ ] Google Cloud (Natural Language API)
+- [x] Key Phrase Extraction
+    - [x] AWS (Comprehend)
+    - [x] Azure (AI Language)
+- [x] Named Entity Recognition (NER)
+    - [x] AWS (Comprehend)
+    - [x] Azure (AI Language)
+    - [x] Google Cloud (Natural Language API)
+- [x] Language Detection
+    - [x] AWS (Comprehend)
+    - [x] Azure (AI Language)
+    - [x] Google Cloud (Natural Language API)
 
 ## 🔲 Module 2: Document Analysis (OCR+)
 
@@ -59,9 +59,22 @@ Feel free to open an **Issue** to suggest new features!
     - [ ] Azure (AI Vision)
     - [ ] Google Cloud (Vision AI)
 
-## 🔲 Module 5: Intelligent Search (RAG)
+## 🔲 Module 5: Speech & Audio - GRATUIT (NOUVEAU)
+- [ ] Speech-to-Text
+  - [ ] AWS Transcribe
+  - [ ] Azure Speech
+  - [ ] Google Speech-to-Text
+- [ ] Text-to-Speech
+  - [ ] AWS Polly
+  - [ ] Azure TTS
+  - [ ] Google TTS
 
-- [ ] Chat with your Documents
-    - [ ] AWS Pipeline (Kendra / OpenSearch)
-    - [ ] Azure Pipeline (AI Search)
-    - [ ] Google Cloud Pipeline (Vertex AI Search)
+## 🔲 Module 6: Intelligent Search (RAG)
+
+- [ ] Document Upload & Chunking
+- [ ] Embeddings Generation (Bedrock, OpenAI, Vertex AI)
+- [ ] Vector Search & store (In-memory / ChromaDB)
+- [ ] RAG Query Pipeline
+  - [ ] AWS (Bedrock + Kendra / OpenSearch Serverless)
+  - [ ] Azure (OpenAI + AI Search)
+  - [ ] Google (Vertex AI + Vector Search)

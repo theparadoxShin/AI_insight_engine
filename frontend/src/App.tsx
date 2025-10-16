@@ -7,12 +7,10 @@ import FileUpload from './components/FileUpload';
 import AnalysisTabs from './components/AnalysisTabs';
 import ResultsGrid from './components/ResultsGrid';
 import CodeViewer from './components/CodeViewer';
-import RateLimitWarning from './components/RateLimitWarning';
 import { 
   AnalysisResult, 
   AnalysisType, 
   ModuleType, 
-  RateLimitInfo, 
   UploadedFile,
   Language 
 } from './types';
@@ -39,11 +37,6 @@ function App() {
   }>({
     isOpen: false,
     provider: 'aws'
-  });
-  const [rateLimitInfo, setRateLimitInfo] = useState<RateLimitInfo>({
-    remainingRequests: 50,
-    resetTime: Date.now() + 3600000, // 1 hour from now
-    isLimited: false
   });
 
   /**
@@ -80,13 +73,6 @@ function App() {
     setError(null);
 
     try {
-
-      // Check rate limits
-      if (rateLimitInfo.remainingRequests <= 0) {
-        setRateLimitInfo(prev => ({ ...prev, isLimited: true }));
-        throw new Error('Rate limit exceeded. Please wait before making another request.');
-      }
-
       // Call API service
       const response = await apiService.analyzeContent({
         text: inputText,
@@ -103,22 +89,6 @@ function App() {
         console.log('✅ Analysis completed successfully');
       }
 
-      // Update rate limit information
-      if (response.rateLimitInfo) {
-        setRateLimitInfo(prev => ({
-          ...prev,
-          remainingRequests: response.rateLimitInfo!.remainingRequests,
-          resetTime: response.rateLimitInfo!.resetTime,
-          isLimited: response.rateLimitInfo!.remainingRequests <= 0
-        }));
-      } else {
-        // Decrement local counter if no server info
-        setRateLimitInfo(prev => ({
-          ...prev,
-          remainingRequests: Math.max(0, prev.remainingRequests - 1)
-        }));
-      }
-
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
       console.error('❌ Error during analysis:', errorMessage);
@@ -126,7 +96,7 @@ function App() {
     } finally {
       setIsLoading(false);
     }
-  }, [rateLimitInfo.remainingRequests, language, selectedModel]);
+  }, [language, selectedModel]);
 
   /**
    * Handler to trigger analysis
@@ -136,7 +106,7 @@ function App() {
     const moduleConfig = MODULES[activeModule];
     
     // Validation based on module input type
-    if (moduleConfig.inputType === 'text' && text.trim() && !rateLimitInfo.isLimited) {
+    if (moduleConfig.inputType === 'text' && text.trim()) {
       analyzeContent(text, analysisType);
     } else if (moduleConfig.inputType === 'file' && uploadedFiles.length > 0) {
       analyzeContent('', analysisType, uploadedFiles);
@@ -145,14 +115,14 @@ function App() {
     } else {
       console.warn('⚠️ Analysis conditions not met');
     }
-  }, [activeModule, text, analysisType, uploadedFiles, rateLimitInfo.isLimited, analyzeContent]);
+  }, [activeModule, text, analysisType, uploadedFiles, analyzeContent]);
 
   /**
    * Opens code viewer for a specific provider
    * @param provider - Cloud provider (aws, azure, google)
    */
   const handleViewCode = useCallback((provider: string) => {
-    console.log('📖 Opening code viewer for:', provider);
+    console.log('Opening code viewer for:', provider);
     setCodeViewer({
       isOpen: true,
       provider
@@ -174,7 +144,7 @@ function App() {
    * @param files - List of uploaded files
    */
   const handleFilesUpload = useCallback((files: UploadedFile[]) => {
-    console.log('📁 Files uploaded:', files.length);
+    console.log('Files uploaded:', files.length);
     setUploadedFiles(files);
     // Reset previous results
     setResults(null);
@@ -182,34 +152,10 @@ function App() {
   }, []);
 
   /**
-   * Periodically resets rate limits
-   * Simulates real API behavior with sliding window
-   */
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setRateLimitInfo(prev => {
-        if (Date.now() > prev.resetTime) {
-          console.log('🔄 Resetting rate limits');
-          return {
-            remainingRequests: 10,
-            resetTime: Date.now() + 3600000, // 1 hour
-            isLimited: false
-          };
-        }
-        return prev;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  /**
    * Checks if analysis can be triggered
    * Based on module input type and conditions
    */
-  const canAnalyze = useMemo(() => {
-    if (rateLimitInfo.isLimited) return false;
-    
+  const canAnalyze = useMemo(() => {    
     const moduleConfig = MODULES[activeModule];
     
     switch (moduleConfig.inputType) {
@@ -223,14 +169,14 @@ function App() {
       default:
         return false;
     }
-  }, [activeModule, text, uploadedFiles, rateLimitInfo.isLimited]);
+  }, [activeModule, text, uploadedFiles]);
 
   // Get current module configuration
   const moduleConfig = MODULES[activeModule];
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      <div className="mx-auto px-4 py-8" style={{ maxWidth: '89rem' }}>
+      <div className="mx-auto px-4 py-8" style={{ maxWidth: '125rem' }}>
         {/* Header with title, description and links */}
         <Header language={language} onLanguageChange={setLanguage} />
         
@@ -241,9 +187,6 @@ function App() {
             onModuleChange={setActiveModule}
             language={language}
           />
-
-          {/* Rate limit warning */}
-          <RateLimitWarning rateLimitInfo={rateLimitInfo} language={language} />
           
           {/* Text input area for appropriate modules */}
           {(moduleConfig.inputType === 'text' || moduleConfig.inputType === 'documents') && (

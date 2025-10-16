@@ -57,24 +57,24 @@ export class ApiService {
   }
 
   /**
-   * Main method to analyze content - CORRECTED for your backend
+   * Main method to analyze content
    * @param request - Analysis request data
    * @returns Promise<ApiResponse> - Analysis result
    */
   public async analyzeContent(request: AnalysisRequest): Promise<ApiResponse> {
     try {
-      console.log('🚀 Analyzing content:', request.text.substring(0, 50) + '...', 'for type:', request.analysisType);
-      console.log('🔧 Using mock data:', USE_MOCK_DATA);
-      console.log('🌐 API URL:', `${API_BASE_URL}/analyze`);
-      
+      console.log('Analyzing content:', request.text.substring(0, 50) + '...', 'for type:', request.analysisType);
+      console.log('Using mock data:', USE_MOCK_DATA);
+      console.log('API URL:', `${API_BASE_URL}/analyze`);
+
       // If mock mode enabled, use simulated data
       if (USE_MOCK_DATA) {
-        console.log('🎭 Mock mode enabled - Using simulated data');
+        console.log('Mock mode enabled - Using simulated data');
         return this.getMockResponse(request);
       }
 
-      // Real API call - CORRECTED format
-      console.log('📡 Making real API call...');
+      // Real API call
+      console.log('API call...');
       
       const response = await fetch(`${API_BASE_URL}/analyze`, {
         method: 'POST',
@@ -87,28 +87,27 @@ export class ApiService {
         }),
       });
 
-      console.log('📥 Response status:', response.status, response.statusText);
+      console.log('Response status:', response.status, response.statusText);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
-        console.error('❌ API Error Response:', errorData);
+        console.error('API Error Response:', errorData);
         
         throw new Error(errorData?.error || `HTTP ${response.status}: ${response.statusText}`);
       }
 
       const data = await response.json();
-      console.log('✅ Raw API Response:', data);
+      console.log('Raw API Response:', data);
 
-      // CORRECTED: Your backend returns the data directly, not in a nested structure
       return {
         success: true,
-        data: data, // Direct assignment - your backend structure is already correct
+        data: data,
         cached: data.cached,
         message: data.message,
       };
 
     } catch (error: any) {
-      console.error('🔥 API Error:', error);
+      console.error('API Error:', error);
       
       // Don't fallback to mock on real errors - return the actual error
       return {
@@ -119,7 +118,7 @@ export class ApiService {
   }
 
   /**
-   * Generates mock response for testing - CORRECTED to match your backend format
+   * Generates mock response for testing
    * @param request - Analysis request
    * @returns Promise<ApiResponse> - Simulated response
    */
@@ -127,22 +126,21 @@ export class ApiService {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
 
-    console.log('🎭 Generating mock data for:', request.analysisType);
+    console.log('Generating mock data for:', request.analysisType);
 
-    // CORRECTED: Mock data now matches your exact backend format
-    const mockResults: AnalysisResult = {};
-    
+    const mockResults: Partial<Record<AnalysisType, { aws: any; azure: any; google: any }>> & { message?: string } = {};
+
     // Generate mock data in the exact format your backend returns
     mockResults[request.analysisType] = {
       aws: this.generateMockProviderData(request.analysisType, 'aws', request.text),
       azure: this.generateMockProviderData(request.analysisType, 'azure', request.text),
       google: this.generateMockProviderData(request.analysisType, 'google', request.text),
-    };
+    } as { aws: any; azure: any; google: any };
 
     // Add message like your backend
     mockResults.message = `${request.analysisType} analysis completed successfully (MOCK DATA).`;
 
-    console.log('🎭 Generated mock results:', mockResults);
+    console.log('Generated mock results:', mockResults);
 
     return {
       success: true,
@@ -153,7 +151,7 @@ export class ApiService {
   }
 
   /**
-   * Generates specific mock data by analysis type and provider - CORRECTED format
+   * Generates specific mock data by analysis type and provider
    * @param type - Analysis type
    * @param provider - Cloud provider
    * @param text - Text to analyze
@@ -327,12 +325,12 @@ export class ApiService {
    */
   public async healthCheck(): Promise<boolean> {
     if (USE_MOCK_DATA) {
-      console.log('🏥 Health check: Mock mode - always healthy');
+      console.log('Health check: Mock mode - always healthy');
       return true;
     }
 
     try {
-      console.log('🏥 Checking API health...');
+      console.log('Checking API health...');
       
       const response = await fetch(`${API_BASE_URL}/health`, {
         method: 'GET',
@@ -340,11 +338,11 @@ export class ApiService {
       });
       
       const isHealthy = response.ok;
-      console.log('🏥 API Health:', isHealthy ? '✅ Healthy' : '❌ Unhealthy');
+      console.log('API Health:', isHealthy ? 'Healthy' : 'Unhealthy');
       return isHealthy;
       
     } catch (error) {
-      console.warn('⚠️ API Health Check failed:', error);
+      console.warn('API Health Check failed:', error);
       return false;
     }
   }
@@ -354,7 +352,7 @@ export class ApiService {
    */
   public async testConnection(): Promise<boolean> {
     try {
-      console.log('🧪 Testing connection...');
+      console.log('Testing connection...');
       
       const testRequest: AnalysisRequest = {
         text: 'Test connection',
@@ -362,11 +360,11 @@ export class ApiService {
       };
       
       const result = await this.analyzeContent(testRequest);
-      console.log('🧪 Connection test result:', result.success ? '✅ Success' : '❌ Failed');
+      console.log('Connection test result:', result.success ? 'Success' : 'Failed');
       
       return result.success;
     } catch (error) {
-      console.error('🧪 Connection test failed:', error);
+      console.error('Connection test failed:', error);
       return false;
     }
   }

@@ -1,5 +1,5 @@
 // ========================================
-// 🎯 INTERFACES PRINCIPALES
+// INTERFACES PRINCIPALES
 // ========================================
 
 export interface AnalysisResult {
@@ -38,6 +38,8 @@ export interface AnalysisResult {
   imageDescription?: { aws?: any; azure?: any; google?: any };
   objectDetection?: { aws?: any; azure?: any; google?: any };
   ocr?: { aws?: any; azure?: any; google?: any };
+  speechToText?: { aws?: any; azure?: any; google?: any };
+  textToSpeech?: { aws?: any; azure?: any; google?: any };
   contentModeration?: { aws?: any; azure?: any; google?: any };
   ragQuery?: { aws?: any; azure?: any; google?: any };
   
@@ -47,7 +49,7 @@ export interface AnalysisResult {
 }
 
 // ========================================
-// 🎭 SENTIMENT ANALYSIS - Types par Provider
+// SENTIMENT ANALYSIS - Types par Provider
 // ========================================
 
 export interface AWSentimentResult {
@@ -86,7 +88,7 @@ export interface GoogleSentimentResult {
 }
 
 // ========================================
-// 🏷️ ENTITY RECOGNITION - Types par Provider
+// ENTITY RECOGNITION - Types par Provider
 // ========================================
 
 export interface AWSEntityResult {
@@ -113,7 +115,7 @@ export interface GoogleEntityResult {
 }
 
 // ========================================
-// 🌐 LANGUAGE DETECTION - Types par Provider
+// LANGUAGE DETECTION - Types par Provider
 // ========================================
 
 export interface AWSLanguageResult {
@@ -132,7 +134,7 @@ export interface GoogleLanguageResult {
 }
 
 // ========================================
-// 📁 TEXT CLASSIFICATION - Types par Provider
+// TEXT CLASSIFICATION - Types par Provider
 // ========================================
 
 export interface AWSClassificationResult {
@@ -151,7 +153,7 @@ export interface GoogleClassificationResult {
 }
 
 // ========================================
-// 🔧 TYPES GÉNÉRIQUES (Compatibilité)
+// TYPES GÉNÉRIQUES (Compatibilité)
 // ========================================
 
 export interface Entity {
@@ -202,7 +204,7 @@ export interface ClassificationData {
 }
 
 // ========================================
-// 🎯 ENUMS ET TYPES
+// ENUMS ET TYPES
 // ========================================
 
 export type AnalysisType = 
@@ -219,6 +221,8 @@ export type AnalysisType =
   | 'objectDetection'
   | 'ocr'
   | 'contentModeration'
+  | 'speechToText'
+  | 'textToSpeech'
   | 'ragQuery';
 
 export type ModuleType = 
@@ -226,6 +230,7 @@ export type ModuleType =
   | 'documentAnalysis'
   | 'contentGeneration'
   | 'computerVision'
+  | 'speechAudio'
   | 'ragPlayground';
 
 export type Language = 'en' | 'fr';
@@ -233,7 +238,7 @@ export type Language = 'en' | 'fr';
 export type ProviderType = 'aws' | 'azure' | 'google';
 
 // ========================================
-// 🏗️ CONFIGURATION ET METADATA
+// CONFIGURATION ET METADATA
 // ========================================
 
 export interface ModuleConfig {
@@ -242,7 +247,7 @@ export interface ModuleConfig {
   description: string;
   icon: string;
   analyses: AnalysisType[];
-  inputType: 'text' | 'file' | 'image' | 'documents';
+  inputType: 'text' | 'file' | 'image' | 'documents' | 'audio';
 }
 
 export interface AnalysisTypeConfig {
@@ -253,7 +258,7 @@ export interface AnalysisTypeConfig {
 }
 
 // ========================================
-// 🌐 API COMMUNICATION
+// API COMMUNICATION
 // ========================================
 
 export interface ApiResponse {
@@ -262,13 +267,6 @@ export interface ApiResponse {
   error?: string;
   message?: string;
   cached?: boolean;
-  rateLimitInfo?: RateLimitInfo;
-}
-
-export interface RateLimitInfo {
-  remainingRequests: number;
-  resetTime: number;
-  isLimited: boolean;
 }
 
 export interface AnalysisRequest {
@@ -277,7 +275,7 @@ export interface AnalysisRequest {
 }
 
 // ========================================
-// 🎨 UI ET INTERFACE
+// UI ET INTERFACE
 // ========================================
 
 export interface Translation {
@@ -312,7 +310,7 @@ export interface RAGDocument {
 }
 
 // ========================================
-// 🔍 MOCK DATA INTERFACES (pour apiService)
+// MOCK DATA INTERFACES (pour apiService)
 // ========================================
 
 export interface MockSentimentData {
@@ -344,7 +342,7 @@ export interface MockClassificationData {
 }
 
 // ========================================
-// 🛡️ ERROR HANDLING
+// ERROR HANDLING
 // ========================================
 
 export interface ApiError {
@@ -366,7 +364,7 @@ export interface RateLimitError extends ApiError {
 }
 
 // ========================================
-// 🎯 TYPE GUARDS (Utilitaires)
+// TYPE GUARDS (Utilitaires)
 // ========================================
 
 export function isAWSentimentResult(data: any): data is AWSentimentResult {
@@ -385,12 +383,9 @@ export function isApiError(error: any): error is ApiError {
   return error && typeof error.error === 'string';
 }
 
-export function isRateLimitError(error: any): error is RateLimitError {
-  return isApiError(error) && typeof error.retryAfter === 'number';
-}
 
 // ========================================
-// 🚀 HELPER TYPES
+// HELPER TYPES
 // ========================================
 
 export type ProviderResult<T> = {

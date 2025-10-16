@@ -33,6 +33,16 @@ export const MODULES: Record<string, ModuleConfig> = {
     analyses: ['imageDescription', 'objectDetection', 'ocr', 'contentModeration'],
     inputType: 'image'
   },
+
+  speechAudio: {
+    id: 'speechAudio',
+    title: 'Speech & Audio',
+    description: 'Convert speech to text and vice versa',
+    icon: '🎤',
+    analyses: ['speechToText', 'textToSpeech'],
+    inputType: 'audio'
+  },
+
   ragPlayground: {
     id: 'ragPlayground',
     title: 'Expert RAG Playground',
@@ -128,6 +138,21 @@ export const ANALYSIS_TYPES: Record<string, AnalysisTypeConfig> = {
     icon: '🛡️',
     description: 'Detect inappropriate content',
     module: 'computerVision'
+  },
+
+  // Speech & Audio Module
+  speechToText: {
+    title: 'Speech-to-Text',
+    icon: '🎙️',
+    description: 'Transcribe audio to text',
+    module: 'speechAudio'
+  },
+  
+  textToSpeech: {
+    title: 'Text-to-Speech',
+    icon: '🔊',
+    description: 'Convert text to natural speech',
+    module: 'speechAudio'
   },
   
   // RAG Playground Module
